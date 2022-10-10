@@ -23,6 +23,6 @@ public record ApiResponse<T>(boolean success,
     }
 
     public record Empty() {
-        static Empty INSTANCE = new Empty();
+        static final Empty INSTANCE = new Empty();
     }
 }
