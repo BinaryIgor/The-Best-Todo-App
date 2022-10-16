@@ -37,6 +37,8 @@ import com.igor101.thebesttodoapp.application.ApiResponse;
 import com.igor101.thebesttodoapp.application.HttpFunctions;
 import com.igor101.thebesttodoapp.application.TodoController;
 import com.igor101.thebesttodoapp.core.TheBestTodoAppException;
+import com.igor101.thebesttodoapp.core.TodoService;
+import com.igor101.thebesttodoapp.infrastructure.InMemoryTodoRepository;
 import io.javalin.Javalin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,10 @@ public class TheBestTodoApp {
             }
         });
 
-        var todoController = new TodoController();
+        var todoRepository = new InMemoryTodoRepository();
+        var todoService = new TodoService(todoRepository);
+
+        var todoController = new TodoController(todoService);
         todoController.init(app);
 
         app.start(port);
