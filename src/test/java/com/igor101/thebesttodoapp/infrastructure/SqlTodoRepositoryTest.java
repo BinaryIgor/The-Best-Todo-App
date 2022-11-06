@@ -1,65 +1,24 @@
 package com.igor101.thebesttodoapp.infrastructure;
 
+import com.igor101.thebesttodoapp.IntegrationTest;
 import com.igor101.thebesttodoapp.core.Todo;
 import com.igor101.thebesttodoapp.core.TodoData;
-import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.testcontainers.containers.PostgreSQLContainer;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.DriverManager;
 import java.util.List;
 
-public class SqlTodoRepositoryTest {
-
-    private static final String POSTGRES_VERSION = "postgres:14.3";
-    private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(POSTGRES_VERSION);
-    private static DSLContext CONTEXT;
+public class SqlTodoRepositoryTest extends IntegrationTest {
 
     private SqlTodoRepository repository;
-
-    @BeforeAll
-    static void allSetup() throws Exception {
-        POSTGRES.start();
-        CONTEXT = context();
-        initSchema();
-    }
 
     @BeforeEach
     void setup() {
         repository = new SqlTodoRepository(CONTEXT);
-    }
-
-    private static DSLContext context() throws Exception {
-        var connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(),
-                POSTGRES.getUsername(),
-                POSTGRES.getPassword());
-
-        return DSL.using(connection);
-    }
-
-    private static void initSchema() throws Exception {
-        var cwd = Path.of("").toAbsolutePath();
-        var schemaPath = Path.of(cwd.toString(), "db", "schema.sql");
-        var schema = Files.readString(schemaPath);
-
-        CONTEXT.execute(schema);
-    }
-
-    @AfterEach
-    void tearDown() {
-        CONTEXT.truncate(SqlTodoRepository.TODO_TABLE)
-                .execute();
-    }
-
-    @AfterAll
-    static void allTearDown() {
-        POSTGRES.stop();
     }
 
     @Test

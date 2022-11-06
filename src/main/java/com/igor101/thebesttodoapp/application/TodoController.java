@@ -14,9 +14,12 @@ public class TodoController {
     }
 
     public void init(Javalin app) {
+        //TODO: test filters!
         app.get(PATH, ctx -> {
-            //TODO: implement filters
-            var todos = service.todos(null, null);
+            var nameFilter = HttpFunctions.queryParam(ctx, "nameFilter", String.class, null);
+            var descriptionFilter = HttpFunctions.queryParam(ctx, "descriptionFilter", String.class, null);
+
+            var todos = service.todos(nameFilter, descriptionFilter);
             HttpFunctions.writeJsonResponse(ctx, ApiResponse.ofSuccess(todos), 200);
         });
 

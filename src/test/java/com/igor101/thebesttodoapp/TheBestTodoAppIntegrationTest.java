@@ -5,7 +5,6 @@ import com.igor101.thebesttodoapp.application.ApiResponse;
 import com.igor101.thebesttodoapp.application.JsonMapper;
 import com.igor101.thebesttodoapp.core.Todo;
 import com.igor101.thebesttodoapp.core.TodoData;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,7 +16,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
 
-public class TheBestTodoAppIntegrationTest {
+public class TheBestTodoAppIntegrationTest extends IntegrationTest {
 
     private static final int PORT = 9090;
     private TheBestTodoApp app;
@@ -25,16 +24,21 @@ public class TheBestTodoAppIntegrationTest {
 
     @BeforeEach
     void setup() {
-        app = new TheBestTodoApp();
-        app.start(PORT);
+        var config = new TheBestTodoAppConfig(PORT,
+                POSTGRES.getUsername(),
+                POSTGRES.getPassword(),
+                POSTGRES.getJdbcUrl());
+
+        app = new TheBestTodoApp(config);
+        app.start();
 
         httpClient = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(3000))
                 .build();
     }
 
-    @AfterEach
-    void tearDown() {
+    @Override
+    protected void afterEach() {
         app.stop();
     }
 

@@ -33,4 +33,12 @@ public class HttpFunctions {
             throw new TheBestTodoAppException(ApiErrors.INVALID_PATH_PARAM);
         }
     }
+
+    public static <T> T queryParam(Context context, String param, Class<T> type, T defaultValue) {
+        try {
+            return context.queryParamAsClass(param, type).getOrDefault(defaultValue);
+        } catch (Exception e) {
+            throw new TheBestTodoAppException(ApiErrors.INVALID_QUERY_PARAM);
+        }
+    }
 }

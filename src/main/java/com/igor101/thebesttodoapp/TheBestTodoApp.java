@@ -38,17 +38,27 @@ import com.igor101.thebesttodoapp.application.HttpFunctions;
 import com.igor101.thebesttodoapp.application.TodoController;
 import com.igor101.thebesttodoapp.core.TheBestTodoAppException;
 import com.igor101.thebesttodoapp.core.TodoService;
-import com.igor101.thebesttodoapp.infrastructure.InMemoryTodoRepository;
+import com.igor101.thebesttodoapp.infrastructure.SqlTodoRepository;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import io.javalin.Javalin;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class TheBestTodoApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(TheBestTodoApp.class);
+    private final TheBestTodoAppConfig config;
     private Javalin app;
 
-    public void start(int port) {
+    public TheBestTodoApp(TheBestTodoAppConfig config) {
+        this.config = config;
+    }
+
+    public void start() {
         app = Javalin.create();
 
         app.exception(Exception.class, (exception, ctx) -> {
@@ -61,13 +71,22 @@ public class TheBestTodoApp {
             }
         });
 
-        var todoRepository = new InMemoryTodoRepository();
+        var todoRepository = new SqlTodoRepository(dslContext());
         var todoService = new TodoService(todoRepository);
 
         var todoController = new TodoController(todoService);
         todoController.init(app);
 
-        app.start(port);
+        app.start(config.httpPort());
+    }
+
+    private DSLContext dslContext() {
+        var hikariConfig = new HikariConfig();
+        hikariConfig.setUsername(config.dbUser());
+        hikariConfig.setPassword(config.dbPassword());
+        hikariConfig.setJdbcUrl(config.dbUrl());
+
+        return DSL.using(new HikariDataSource(hikariConfig), SQLDialect.POSTGRES);
     }
 
     public void stop() {
@@ -77,7 +96,9 @@ public class TheBestTodoApp {
     }
 
     public static void main(String[] args) {
-        var app = new TheBestTodoApp();
-        app.start(8080);
+        var config = TheBestTodoAppConfig.fromEnvVariables();
+
+        var app = new TheBestTodoApp(config);
+        app.start();
     }
 }
