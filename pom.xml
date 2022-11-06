@@ -87,6 +87,30 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <artifactId>
+                    maven-assembly-plugin
+                </artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <finalName>the-best-todo-app</finalName>
+                            <archive>
+                                <manifest>
+                                    <mainClass>com.igor101.thebesttodoapp.TheBestTodoApp</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
