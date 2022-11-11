@@ -42,6 +42,7 @@ import com.igor101.thebesttodoapp.infrastructure.SqlTodoRepository;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import io.javalin.Javalin;
+import io.javalin.http.staticfiles.Location;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -59,7 +60,13 @@ public class TheBestTodoApp {
     }
 
     public void start() {
-        app = Javalin.create();
+        app = Javalin.create(c -> {
+            if (config.staticFilesPath().isEmpty()) {
+                c.staticFiles.add("public", Location.CLASSPATH);
+            } else {
+                c.staticFiles.add(config.staticFilesPath(), Location.EXTERNAL);
+            }
+        });
 
         app.exception(Exception.class, (exception, ctx) -> {
             if (exception instanceof TheBestTodoAppException appException) {
